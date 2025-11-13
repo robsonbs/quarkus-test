@@ -4,6 +4,7 @@ import com.robsonbs.dao.UserDao;
 import com.robsonbs.model.User;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
+import io.smallrye.common.annotation.Blocking;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -12,6 +13,7 @@ import java.net.URI;
 import java.util.List;
 
 @Path("/users")
+@Blocking
 public class UserController {
 
     @Inject
