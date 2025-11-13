@@ -1,24 +1,54 @@
-# Compiled class file
-*.class
-
-# Log file
-*.log
 
 # BlueJ files
-*.ctxt
-
+# Compiled class file
+# Eclipse
+# IntelliJ
+# Local environment
+# Log file
 # Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
+# NetBeans
+# OSX
 # Package Files #
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
-
+# Plugin directory
+# Vim
+# Visual Studio Code
+# patch
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+#Maven
+*.class
+*.ctxt
+*.ear
+*.iml
+*.ipr
+*.iws
+*.jar
+*.log
+*.nar
+*.orig
+*.rar
+*.rej
+*.swo
+*.swp
+*.tar.gz
+*.war
+*.zip
+.DS_Store
+.classpath
+.env
+.factorypath
+.flattened-pom.xml
+.idea
+.mtj.tmp/
+.project
+.settings/
+.vscode
+/.quarkus/cli/plugins/
+bin/
 hs_err_pid*
+nb-configuration.xml
+pom.xml.releaseBackup
+pom.xml.tag
+pom.xml.versionsBackup
+release.properties
 replay_pid*
+target/
