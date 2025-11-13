@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Management - Quarkus</title>
+    <title>Gerenciamento de Usuários - Quarkus</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -13,12 +13,12 @@
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                 <div class="flex justify-between items-center">
                     <div>
-                        <h1 class="text-3xl font-bold text-gray-800">User Management</h1>
-                        <p class="text-gray-600 mt-2">Quarkus MVC Application with PostgreSQL</p>
+                        <h1 class="text-3xl font-bold text-gray-800">Gerenciamento de Usuários</h1>
+                        <p class="text-gray-600 mt-2">Aplicação Quarkus MVC com PostgreSQL</p>
                     </div>
                     <a href="/users/new" 
                        class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg transition duration-200 shadow-md hover:shadow-lg">
-                        + Add New User
+                        + Adicionar Novo Usuário
                     </a>
                 </div>
             </div>
@@ -26,7 +26,7 @@
             <!-- Users List -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
                 <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
-                    <h2 class="text-xl font-semibold text-gray-800">All Users</h2>
+                    <h2 class="text-xl font-semibold text-gray-800">Todos os Usuários</h2>
                 </div>
                 
                 {#if users.isEmpty()}
@@ -34,11 +34,11 @@
                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
-                    <h3 class="mt-4 text-lg font-medium text-gray-900">No users yet</h3>
-                    <p class="mt-2 text-gray-500">Get started by creating a new user.</p>
+                    <h3 class="mt-4 text-lg font-medium text-gray-900">Nenhum usuário ainda</h3>
+                    <p class="mt-2 text-gray-500">Comece criando um novo usuário.</p>
                     <div class="mt-6">
                         <a href="/users/new" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
-                            Create First User
+                            Criar Primeiro Usuário
                         </a>
                     </div>
                 </div>
@@ -48,10 +48,10 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Criado Em</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -64,9 +64,9 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <form method="post" action="/users/{user.id}/delete" class="inline">
                                         <button type="submit" 
-                                                onclick="return confirm('Are you sure you want to delete this user?')"
+                                                onclick="return confirm('Tem certeza que deseja deletar este usuário?')"
                                                 class="text-red-600 hover:text-red-900 transition duration-150">
-                                            Delete
+                                            Deletar
                                         </button>
                                     </form>
                                 </td>
@@ -81,9 +81,9 @@
             <!-- Footer -->
             <div class="mt-8 text-center text-gray-600">
                 <p class="text-sm">
-                    Built with 
+                    Desenvolvido com 
                     <span class="text-blue-600 font-semibold">Quarkus</span>, 
-                    <span class="text-blue-600 font-semibold">PostgreSQL</span>, and 
+                    <span class="text-blue-600 font-semibold">PostgreSQL</span> e 
                     <span class="text-blue-600 font-semibold">Tailwind CSS</span>
                 </p>
             </div>

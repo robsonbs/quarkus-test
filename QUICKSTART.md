@@ -1,132 +1,132 @@
-# Quick Start Guide
+# Guia de Início Rápido
 
-This guide will help you quickly set up and run the Quarkus MVC application.
+Este guia ajudará você a configurar e executar rapidamente a aplicação Quarkus MVC.
 
-## Prerequisites
+## Pré-requisitos
 
-- Java 17 or later
+- Java 17 ou superior
 - Maven 3.8+
-- Docker and Docker Compose
+- Docker e Docker Compose
 
-## Quick Start (Development Mode)
+## Início Rápido (Modo de Desenvolvimento)
 
-### 1. Start PostgreSQL
+### 1. Iniciar PostgreSQL
 
 ```bash
 docker compose up -d postgres
 ```
 
-### 2. Run the Application
+### 2. Executar a Aplicação
 
 ```bash
 ./mvnw quarkus:dev
 ```
 
-The application will be available at http://localhost:8080
+A aplicação estará disponível em http://localhost:8080
 
-### 3. Access the Application
+### 3. Acessar a Aplicação
 
-- **Home Page**: http://localhost:8080/
-- **User Management**: http://localhost:8080/users
-- **API Endpoint**: http://localhost:8080/users/api
+- **Página Inicial**: http://localhost:8080/
+- **Gerenciamento de Usuários**: http://localhost:8080/users
+- **Endpoint da API**: http://localhost:8080/users/api
 
-## Quick Start (Production with Docker)
+## Início Rápido (Produção com Docker)
 
-### Build and Run Everything
+### Compilar e Executar Tudo
 
 ```bash
-# Build the application
+# Compilar a aplicação
 ./mvnw clean package
 
-# Start all services (database + application)
+# Iniciar todos os serviços (banco de dados + aplicação)
 docker compose up
 ```
 
-The application will be available at http://localhost:8080
+A aplicação estará disponível em http://localhost:8080
 
-## Stopping the Application
+## Parando a Aplicação
 
-### Development Mode
-Press `Ctrl+C` in the terminal running `quarkus:dev`
+### Modo de Desenvolvimento
+Pressione `Ctrl+C` no terminal executando `quarkus:dev`
 
 ### Docker Compose
 ```bash
 docker compose down
 ```
 
-## Creating Your First User
+## Criando Seu Primeiro Usuário
 
-1. Navigate to http://localhost:8080/users
-2. Click "Add New User"
-3. Fill in the form:
-   - Name: John Doe
-   - Email: john.doe@example.com
-4. Click "Create User"
+1. Navegue para http://localhost:8080/users
+2. Clique em "Adicionar Novo Usuário"
+3. Preencha o formulário:
+   - Nome: João Silva
+   - Email: joao.silva@exemplo.com
+4. Clique em "Criar Usuário"
 
-## API Usage
+## Uso da API
 
-### Get all users (JSON)
+### Buscar todos os usuários (JSON)
 ```bash
 curl http://localhost:8080/users/api
 ```
 
-### Response
+### Resposta
 ```json
 [
   {
     "id": 1,
-    "name": "John Doe",
-    "email": "john.doe@example.com",
+    "name": "João Silva",
+    "email": "joao.silva@exemplo.com",
     "createdAt": "2025-11-13T18:40:35.802087"
   }
 ]
 ```
 
-## Troubleshooting
+## Solução de Problemas
 
-### Port 5432 already in use
-If PostgreSQL port is already in use, stop existing PostgreSQL instances:
+### Porta 5432 já está em uso
+Se a porta do PostgreSQL já estiver em uso, pare as instâncias existentes do PostgreSQL:
 ```bash
 docker ps
 docker stop <container-id>
 ```
 
-### Port 8080 already in use
-Change the port in `application.properties`:
+### Porta 8080 já está em uso
+Altere a porta no `application.properties`:
 ```properties
 quarkus.http.port=8090
 ```
 
-### Database connection issues
-Check PostgreSQL is running and healthy:
+### Problemas de conexão com o banco de dados
+Verifique se o PostgreSQL está em execução e saudável:
 ```bash
 docker compose ps
 ```
 
-## Development Tips
+## Dicas de Desenvolvimento
 
-- **Live Reload**: Changes to Java files are automatically reloaded in dev mode
-- **Dev UI**: Access Quarkus Dev UI at http://localhost:8080/q/dev-ui/
-- **H2 Console**: Can be enabled for quick testing without Docker
+- **Recarga Automática**: Alterações em arquivos Java são automaticamente recarregadas no modo dev
+- **Dev UI**: Acesse a Interface de Dev do Quarkus em http://localhost:8080/q/dev-ui/
+- **Console H2**: Pode ser habilitado para testes rápidos sem Docker
 
-## Project Structure
+## Estrutura do Projeto
 
 ```
 src/main/java/com/robsonbs/
-├── model/          # Entities (User)
+├── model/          # Entidades (User)
 ├── dao/            # Data Access Objects
-└── controller/     # REST Controllers
+└── controller/     # Controladores REST
 
 src/main/resources/
-├── templates/      # HTML templates
+├── templates/      # Templates HTML
 └── application.properties
 ```
 
-## Next Steps
+## Próximos Passos
 
-- Customize the User entity by adding more fields
-- Create additional entities and DAOs
-- Add authentication and authorization
-- Implement pagination for large datasets
-- Add input validation
-- Configure database migrations with Flyway/Liquibase
+- Personalizar a entidade User adicionando mais campos
+- Criar entidades e DAOs adicionais
+- Adicionar autenticação e autorização
+- Implementar paginação para grandes conjuntos de dados
+- Adicionar validação de entrada
+- Configurar migrações de banco de dados com Flyway/Liquibase

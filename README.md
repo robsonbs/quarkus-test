@@ -1,140 +1,140 @@
-# Quarkus MVC Application with PostgreSQL
+# Aplicação Quarkus MVC com PostgreSQL
 
-A modern web application built with Quarkus framework, implementing MVC and DAO patterns with PostgreSQL database and Tailwind CSS for styling.
+Uma aplicação web moderna construída com o framework Quarkus, implementando os padrões MVC e DAO com banco de dados PostgreSQL e Tailwind CSS para estilização.
 
-## Tech Stack
+## Stack Tecnológica
 
-- **Backend Framework**: Quarkus 3.6.4
-- **Database**: PostgreSQL 15
-- **ORM**: Hibernate with Panache
-- **View Engine**: Qute Templates
-- **CSS Framework**: Tailwind CSS
-- **Containerization**: Docker & Docker Compose
-- **Build Tool**: Maven
+- **Framework Backend**: Quarkus 3.6.4
+- **Banco de Dados**: PostgreSQL 15
+- **ORM**: Hibernate com Panache
+- **Motor de Templates**: Qute Templates
+- **Framework CSS**: Tailwind CSS
+- **Containerização**: Docker & Docker Compose
+- **Ferramenta de Build**: Maven
 
-## Architecture
+## Arquitetura
 
-This application follows these design patterns:
+Esta aplicação segue os seguintes padrões de design:
 
-- **MVC (Model-View-Controller)**: Separates concerns between data, presentation, and business logic
-- **DAO (Data Access Object)**: Abstracts database operations
-- **Dependency Injection**: Uses CDI for loose coupling
+- **MVC (Model-View-Controller)**: Separa as preocupações entre dados, apresentação e lógica de negócios
+- **DAO (Data Access Object)**: Abstrai operações de banco de dados
+- **Injeção de Dependência**: Usa CDI para baixo acoplamento
 
-### Project Structure
+### Estrutura do Projeto
 
 ```
 src/main/java/com/robsonbs/
-├── model/          # Entity classes (Model)
+├── model/          # Classes de entidade (Model)
 │   └── User.java
 ├── dao/            # Data Access Objects
 │   └── UserDao.java
-└── controller/     # REST Controllers (Controller)
+└── controller/     # Controladores REST (Controller)
     └── UserController.java
 
 src/main/resources/
-├── templates/      # Qute HTML templates (View)
+├── templates/      # Templates HTML Qute (View)
 │   ├── users.html
 │   └── userForm.html
 └── application.properties
 ```
 
-## Features
+## Funcionalidades
 
-- ✅ Full CRUD operations for User management
-- ✅ RESTful API endpoints
-- ✅ Responsive UI with Tailwind CSS
-- ✅ PostgreSQL database integration
-- ✅ Docker Compose orchestration
-- ✅ Hibernate ORM with automatic schema generation
+- ✅ Operações CRUD completas para gerenciamento de Usuários
+- ✅ Endpoints de API RESTful
+- ✅ Interface responsiva com Tailwind CSS
+- ✅ Integração com banco de dados PostgreSQL
+- ✅ Orquestração com Docker Compose
+- ✅ Hibernate ORM com geração automática de schema
 
-## Prerequisites
+## Pré-requisitos
 
-- Java 17 or later
+- Java 17 ou superior
 - Maven 3.8+
-- Docker and Docker Compose
+- Docker e Docker Compose
 
-## Getting Started
+## Começando
 
-### 1. Clone the Repository
+### 1. Clone o Repositório
 
 ```bash
 git clone https://github.com/robsonbs/quarkus-test.git
 cd quarkus-test
 ```
 
-### 2. Start PostgreSQL with Docker Compose
+### 2. Inicie o PostgreSQL com Docker Compose
 
 ```bash
-docker-compose up -d postgres
+docker compose up -d postgres
 ```
 
-This will start PostgreSQL on port 5432 with:
-- Database: `quarkusdb`
-- Username: `quarkus`
-- Password: `quarkus`
+Isso iniciará o PostgreSQL na porta 5432 com:
+- Banco de dados: `quarkusdb`
+- Usuário: `quarkus`
+- Senha: `quarkus`
 
-### 3. Run the Application in Dev Mode
+### 3. Execute a Aplicação no Modo Dev
 
 ```bash
 ./mvnw quarkus:dev
 ```
 
-The application will be available at http://localhost:8080
+A aplicação estará disponível em http://localhost:8080
 
-### 4. Run with Docker Compose (Full Stack)
+### 4. Execute com Docker Compose (Stack Completo)
 
-To run both the application and database together:
+Para executar tanto a aplicação quanto o banco de dados juntos:
 
 ```bash
-# Build the application
+# Compile a aplicação
 ./mvnw clean package
 
-# Start all services
-docker-compose up
+# Inicie todos os serviços
+docker compose up
 ```
 
 ## Endpoints
 
-### Web Interface
+### Interface Web
 
-- **Home Page**: http://localhost:8080/
-- **User Management**: http://localhost:8080/users
-- **Add User**: http://localhost:8080/users/new
+- **Página Inicial**: http://localhost:8080/
+- **Gerenciamento de Usuários**: http://localhost:8080/users
+- **Adicionar Usuário**: http://localhost:8080/users/new
 
-### API Endpoints
+### Endpoints da API
 
-- **GET /users/api** - List all users (JSON)
-- **POST /users** - Create a new user (form data)
-- **POST /users/{id}/delete** - Delete a user
+- **GET /users/api** - Listar todos os usuários (JSON)
+- **POST /users** - Criar um novo usuário (dados de formulário)
+- **POST /users/{id}/delete** - Deletar um usuário
 
-## Database Configuration
+## Configuração do Banco de Dados
 
-The application is configured to connect to PostgreSQL. Configuration can be found in `src/main/resources/application.properties`:
+A aplicação está configurada para conectar ao PostgreSQL. A configuração pode ser encontrada em `src/main/resources/application.properties`:
 
 ```properties
 quarkus.datasource.db-kind=postgresql
 quarkus.datasource.username=quarkus
-quarkus.datasource.password=quarkus
+quarkus.datasource.******
 quarkus.datasource.jdbc.url=jdbc:postgresql://localhost:5432/quarkusdb
 quarkus.hibernate-orm.database.generation=update
 ```
 
-## Development
+## Desenvolvimento
 
-### Running Tests
+### Executando Testes
 
 ```bash
 ./mvnw test
 ```
 
-### Building for Production
+### Compilando para Produção
 
 ```bash
 ./mvnw clean package
 java -jar target/quarkus-app/quarkus-run.jar
 ```
 
-### Building Native Image
+### Compilando Imagem Nativa
 
 ```bash
 ./mvnw package -Pnative
@@ -142,13 +142,13 @@ java -jar target/quarkus-app/quarkus-run.jar
 
 ## Docker
 
-### Build Docker Image
+### Compilar Imagem Docker
 
 ```bash
 docker build -f src/main/docker/Dockerfile.jvm -t quarkus-test .
 ```
 
-### Run with Docker
+### Executar com Docker
 
 ```bash
 docker run -p 8080:8080 \
@@ -156,9 +156,9 @@ docker run -p 8080:8080 \
   quarkus-test
 ```
 
-## Project Details
+## Detalhes do Projeto
 
-### User Entity (Model)
+### Entidade User (Model)
 
 ```java
 @Entity
@@ -173,32 +173,32 @@ public class User {
 }
 ```
 
-### UserDao (Data Access Layer)
+### UserDao (Camada de Acesso a Dados)
 
-Provides methods for CRUD operations:
-- `findAll()` - Get all users
-- `findById(Long id)` - Get user by ID
-- `save(User user)` - Create or update user
-- `delete(Long id)` - Delete user
-- `findByEmail(String email)` - Find user by email
+Fornece métodos para operações CRUD:
+- `findAll()` - Buscar todos os usuários
+- `findById(Long id)` - Buscar usuário por ID
+- `save(User user)` - Criar ou atualizar usuário
+- `delete(Long id)` - Deletar usuário
+- `findByEmail(String email)` - Buscar usuário por email
 
-### UserController (MVC Controller)
+### UserController (Controlador MVC)
 
-Handles HTTP requests and returns views or JSON responses:
-- HTML views for user interface
-- JSON API for programmatic access
+Trata requisições HTTP e retorna views ou respostas JSON:
+- Views HTML para interface do usuário
+- API JSON para acesso programático
 
-## Contributing
+## Contribuindo
 
-Feel free to submit issues and enhancement requests!
+Sinta-se livre para enviar issues e solicitações de melhorias!
 
-## License
+## Licença
 
-This project is licensed under the terms included in the LICENSE file.
+Este projeto está licenciado sob os termos incluídos no arquivo LICENSE.
 
-## Resources
+## Recursos
 
-- [Quarkus Documentation](https://quarkus.io/guides/)
+- [Documentação Quarkus](https://quarkus.io/guides/)
 - [Hibernate ORM with Panache](https://quarkus.io/guides/hibernate-orm-panache)
-- [Qute Templating Engine](https://quarkus.io/guides/qute)
+- [Motor de Templates Qute](https://quarkus.io/guides/qute)
 - [Tailwind CSS](https://tailwindcss.com/)
