@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Auditoria - Quarkus</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 min-h-screen">
+    {@include includes/navigation.html}
+    <div class="container mx-auto px-4 py-8">
+      <div class="max-w-6xl mx-auto">
+        {@include includes/breadcrumb.html} {@include includes/flash.html}
+      </div>
+      <div class="max-w-6xl mx-auto space-y-6">
+        <div class="flex justify-between items-start">
+          <div>
+            <h1 class="text-3xl font-bold text-gray-800">
+              Registros de Auditoria
+            </h1>
+            <p class="text-gray-600 mt-2 max-w-2xl">
+              Consulte os eventos registrados com filtros por usuário, método, recurso, entidade e intervalo de datas.
+            </p>
+          </div>
+          <a href="/users" class="text-blue-600 hover:text-blue-800"
+            >Voltar para Usuários</a
+          >
+        </div>
+
+        <form
+          method="get"
+          class="bg-white rounded-lg shadow-md border border-gray-200 p-6 space-y-4"
+        >
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <label class="block text-sm">
+              <span class="text-gray-700">Usuário</span>
+              <input
+                type="text"
+                name="username"
+                value="{filters.username ?: ''}"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
+            </label>
+            <label class="block text-sm">
+              <span class="text-gray-700">Método</span>
+              <select
+                name="method"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              >
+                <option value="">Todos</option>
+                {#for method in httpMethods}
+                <option
+                  value="{method}"
+                  {#if filters.method != null && filters.method == method}selected{/if}
+                >
+                  {method}
+                </option>
+                {/for}
+              </select>
+            </label>
+            <label class="block text-sm">
+              <span class="text-gray-700">Recurso</span>
+              <input
+                type="text"
+                name="resource"
+                value="{filters.resource ?: ''}"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                placeholder="/users"
+              />
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <label class="block text-sm">
+              <span class="text-gray-700">Tipo da entidade</span>
+              <input
+                type="text"
+                name="entityType"
+                value="{filters.entityType ?: ''}"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                placeholder="User"
+              />
+            </label>
+            <label class="block text-sm">
+              <span class="text-gray-700">ID da entidade</span>
+              <input
+                type="text"
+                name="entityId"
+                value="{filters.entityId ?: ''}"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
+            </label>
+            <label class="block text-sm">
+              <span class="text-gray-700">Data inicial</span>
+              <input
+                type="date"
+                name="from"
+                value="{filters.from ?: ''}"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
+            </label>
+            <label class="block text-sm">
+              <span class="text-gray-700">Data final</span>
+              <input
+                type="date"
+                name="to"
+                value="{filters.to ?: ''}"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              />
+            </label>
+          </div>
+
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <label class="block text-sm md:w-48">
+              <span class="text-gray-700">Itens por página</span>
+              <select
+                name="size"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              >
+                <option value="10" {#if filters.size == 10}selected{/if}>10</option>
+                <option value="25" {#if filters.size == 25}selected{/if}>25</option>
+                <option value="50" {#if filters.size == 50}selected{/if}>50</option>
+                <option value="100" {#if filters.size == 100}selected{/if}>100</option>
+              </select>
+            </label>
+            <div class="flex items-center gap-3">
+              <button
+                type="submit"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Aplicar filtros
+              </button>
+              <a
+                href="/audit"
+                class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Limpar
+              </a>
+            </div>
+          </div>
+        </form>
+
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+          <div class="px-6 py-4 bg-gray-50 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <h2 class="text-xl font-semibold text-gray-800">
+              Eventos recentes
+            </h2>
+            <p class="text-sm text-gray-500">
+              {totalItems} resultado{totalItems == 1 ? '' : 's'} · Página {currentPage + 1} de {totalPages == 0 ? 1 : totalPages}
+            </p>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Quando
+                  </th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Usuário
+                  </th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Método
+                  </th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Ação
+                  </th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Recurso
+                  </th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Entidade
+                  </th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    IP
+                  </th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    User-Agent
+                  </th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Detalhes
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                {#if logs.isEmpty()}
+                <tr>
+                  <td colspan="10" class="px-6 py-10 text-center text-gray-500">
+                    Nenhum registro de auditoria disponível para o filtro informado.
+                  </td>
+                </tr>
+                {#else} {#for log in logs}
+                <tr class="hover:bg-gray-50">
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                    {log.occurredAt}
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {log.username ?: '-'}
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                    {log.httpMethod ?: '-'}
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                    {log.statusCode ?: '-'}
+                  </td>
+                  <td class="px-4 py-4 text-sm text-gray-600">
+                    {log.action ?: '-'}
+                  </td>
+                  <td class="px-4 py-4 text-sm text-gray-600">
+                    {log.resourcePath ?: '-'}
+                  </td>
+                  <td class="px-4 py-4 text-sm text-gray-600">
+                    {log.entityType ?: '-'}
+                    {#if log.entityId != null}
+                    <span class="text-xs text-gray-500">#{log.entityId}</span>
+                    {/if}
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
+                    {log.clientIp ?: '-'}
+                  </td>
+                  <td class="px-4 py-4 text-sm text-gray-600">
+                    <span title="{log.userAgent ?: '-'}">
+                      {log.userAgent ?: '-'}
+                    </span>
+                  </td>
+                  <td class="px-4 py-4 text-sm text-gray-600">
+                    {log.details ?: '-'}
+                  </td>
+                </tr>
+                {/for} {/if}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <p class="text-sm text-gray-500">
+              Página {currentPage + 1} de {totalPages == 0 ? 1 : totalPages}
+            </p>
+            <div class="flex items-center gap-2">
+              <a
+                href="{previousPageUrl ?: '#'}"
+                class="px-4 py-2 text-sm font-medium rounded-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-100 {hasPrevious ? '' : 'pointer-events-none opacity-50'}"
+              >
+                Anterior
+              </a>
+              <a
+                href="{nextPageUrl ?: '#'}"
+                class="px-4 py-2 text-sm font-medium rounded-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-100 {hasNext ? '' : 'pointer-events-none opacity-50'}"
+              >
+                Próxima
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <p class="text-xs text-gray-400">
+          Somente usuários com perfil ADMIN podem visualizar esta tela.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

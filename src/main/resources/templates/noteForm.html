@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{#if note}Editar Anotação{#else}Nova Anotação{/if}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 min-h-screen">
+    {@include includes/navigation.html}
+    <div class="container mx-auto px-4 py-8">
+      <div class="max-w-3xl mx-auto">
+        {@include includes/breadcrumb.html} {@include includes/flash.html}
+        <div class="mb-6 flex items-center justify-between">
+          <h1 class="text-3xl font-bold text-gray-800">
+            {#if note}Editar Anotação{#else}Nova Anotação{/if}
+          </h1>
+          <a
+            href="/notes"
+            class="inline-flex items-center text-blue-600 hover:text-blue-800"
+          >
+            Voltar para notas
+          </a>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+          <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Detalhes</h2>
+          </div>
+          <div class="p-6">
+            <form
+              action="{#if note}/notes/{note.id}{#else}/notes{/if}"
+              method="post"
+              class="space-y-6"
+            >
+              <div>
+                <label
+                  for="title"
+                  class="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Título <span class="text-red-500">*</span>
+                </label>
+                <input
+                  id="title"
+                  name="title"
+                  type="text"
+                  value="{initialTitle ?: ''}"
+                  required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Título da anotação"
+                />
+              </div>
+
+              <div>
+                <label
+                  for="content"
+                  class="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Conteúdo <span class="text-red-500">*</span>
+                </label>
+                <textarea
+                  id="content"
+                  name="content"
+                  rows="10"
+                  required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y"
+                  placeholder="Escreva sua anotação aqui..."
+                >
+{initialContent ?: ''}</textarea
+                >
+              </div>
+
+              <div class="flex items-center justify-end space-x-4 pt-2">
+                <a
+                  href="/notes"
+                  class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                >
+                  Cancelar
+                </a>
+                <button
+                  type="submit"
+                  class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md hover:shadow-lg"
+                >
+                  Salvar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div
+          class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-700"
+        >
+          <p>
+            As anotações são privadas e visíveis apenas para o usuário
+            autenticado.
+          </p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

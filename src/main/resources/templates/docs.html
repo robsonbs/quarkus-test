@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Documentação • Quarkus Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 min-h-screen">
+    {@include includes/navigation.html}
+    <div class="container mx-auto px-4 py-10">
+      <div class="max-w-5xl mx-auto">
+        {@include includes/breadcrumb.html}
+
+        <header class="bg-white shadow rounded-lg p-8 mb-8">
+          <h1 class="text-3xl font-bold text-gray-800 mb-4">
+            Documentação do Projeto
+          </h1>
+          <p class="text-gray-600 leading-relaxed">
+            Este espaço reúne as principais referências da aplicação
+            desenvolvida para cumprir os requisitos do documento
+            <strong>Projeto Prático – Programação para Web – 2025</strong>.
+            Utilize os atalhos abaixo para navegar entre funcionalidades,
+            revisar decisões de arquitetura e consultar o plano de adequação.
+          </p>
+        </header>
+
+        <section class="grid md:grid-cols-2 gap-6 mb-10">
+          <article class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-3">
+              Requisitos Funcionais
+            </h2>
+            <p class="text-gray-600 mb-4">
+              Visão resumida de como cada requisito foi implementado e onde
+              localizá-lo no código.
+            </p>
+            <ul class="space-y-3 text-sm text-gray-600">
+              <li>
+                <strong>RF-01</strong>: Autenticação por formulário em
+                <code>/login</code> usando Elytron JDBC.
+                <span class="ml-1 font-semibold text-green-600">Concluído</span>
+              </li>
+              <li>
+                <strong>RF-02</strong>: CRUD de usuários em
+                <code>/users</code> (perfil <em>ADMIN</em>).
+                <span class="ml-1 font-semibold text-green-600">Concluído</span>
+              </li>
+              <li>
+                <strong>RF-03</strong>: Gestão de perfis em
+                <code>/profiles</code> com validações de uso.
+                <span class="ml-1 font-semibold text-green-600">Concluído</span>
+              </li>
+              <li>
+                <strong>RF-04</strong>: Navegação consistente via menu global e
+                breadcrumbs reutilizáveis.
+                <span class="ml-1 font-semibold text-green-600">Concluído</span>
+              </li>
+              <li>
+                <strong>RF-05</strong>: Casos de domínio — notas em
+                <code>/notes</code> e tarefas em <code>/tasks</code> (perfis
+                <em>USER</em> e <em>ADMIN</em>), com validações de propriedade,
+                status e prazos.
+                <span class="ml-1 font-semibold text-green-600">Concluído</span>
+              </li>
+              <li>
+                <strong>RF-06</strong>: Auditoria com rastreabilidade em
+                <code>/audit</code> (filtros por usuário, método, recurso,
+                entidade e data).
+                <span class="ml-1 font-semibold text-green-600"
+                  >Concluído*</span
+                >
+              </li>
+            </ul>
+          </article>
+
+          <article class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-3">
+              Arquitetura
+            </h2>
+            <p class="text-gray-600 mb-4">
+              A aplicação segue o padrão MVC com camadas separadas e comunicação
+              via DTOs.
+            </p>
+            <ul class="space-y-3 text-sm text-gray-600">
+              <li>
+                <strong>Controllers</strong>:
+                <code>src/main/java/com/robsonbs/controller</code>
+              </li>
+              <li>
+                <strong>Serviços (BO)</strong>:
+                <code>src/main/java/com/robsonbs/service</code>
+              </li>
+              <li>
+                <strong>DAOs Panache</strong>:
+                <code>src/main/java/com/robsonbs/dao</code>
+              </li>
+              <li>
+                <strong>Entidades JPA</strong>:
+                <code>src/main/java/com/robsonbs/model</code>
+              </li>
+              <li>
+                <strong>Templates Qute</strong>:
+                <code>src/main/resources/templates</code>
+              </li>
+              <li>
+                <strong>Plano de adequação</strong>:
+                <code>docs/plano-adequacao.md</code>
+              </li>
+            </ul>
+          </article>
+        </section>
+
+        <section class="bg-white rounded-lg shadow p-6 mb-10">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">
+            Checklist Rápido
+          </h2>
+          <div class="grid md:grid-cols-2 gap-6 text-sm text-gray-600">
+            <div>
+              <h3 class="font-semibold text-gray-700 mb-2">
+                Fluxos Principais
+              </h3>
+              <ul class="space-y-2">
+                <li>✅ Login e redirecionamento para <code>/users</code>.</li>
+                <li>✅ CRUD de usuários com feedback visual.</li>
+                <li>
+                  ✅ Manutenção de perfis com bloqueio de exclusão em uso.
+                </li>
+                <li>
+                  ✅ Notas e tarefas vinculadas ao usuário autenticado, com
+                  validação de propriedade.
+                </li>
+                <li>
+                  ✅ Auditoria de ações enriquecida com filtros, paginação e
+                  metadados completos.
+                </li>
+                <li>
+                  ✅ Página de erro 500 com identificador de incidente e
+                  registro na auditoria.
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-700 mb-2">
+                Recomendações Finais
+              </h3>
+              <ul class="space-y-2">
+                <li>
+                  ➡️ Implementar testes de integração para fluxos críticos.
+                </li>
+                <li>
+                  ➡️ Habilitar migrações com Flyway/Liquibase para produção.
+                </li>
+                <li>
+                  ➡️ Configurar pipeline CI com execução de
+                  <code>./mvnw test</code>.
+                </li>
+                <li>
+                  ➡️ Automatizar job de retenção/backup dos registros de
+                  auditoria.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">
+            Atalhos Úteis
+          </h2>
+          <div class="grid md:grid-cols-2 gap-4 text-sm">
+            <a
+              href="/users"
+              class="block rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-blue-700 hover:bg-blue-100 transition"
+              >Gerenciar Usuários</a
+            >
+            <a
+              href="/profiles"
+              class="block rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 text-indigo-700 hover:bg-indigo-100 transition"
+              >Perfis de Usuário</a
+            >
+            <a
+              href="/notes"
+              class="block rounded-lg border border-purple-200 bg-purple-50 px-4 py-3 text-purple-700 hover:bg-purple-100 transition"
+              >Notas Pessoais</a
+            >
+            <a
+              href="/tasks"
+              class="block rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-700 hover:bg-emerald-100 transition"
+              >Gestão de Tarefas</a
+            >
+            <a
+              href="/audit"
+              class="block rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-amber-700 hover:bg-amber-100 transition"
+              >Logs de Auditoria</a
+            >
+            <a
+              href="https://github.com/robsonbs/quarkus-test/blob/main/docs/plano-adequacao.md"
+              target="_blank"
+              class="block rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-gray-700 hover:bg-gray-100 transition"
+              >Plano de Adequação (Markdown)</a
+            >
+            <a
+              href="https://quarkus.io/guides"
+              target="_blank"
+              class="block rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-slate-700 hover:bg-slate-100 transition"
+              >Guias Oficiais do Quarkus</a
+            >
+          </div>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>

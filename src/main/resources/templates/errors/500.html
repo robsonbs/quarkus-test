@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>500 • Erro interno do servidor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 min-h-screen">
+    {@include includes/navigation.html}
+    <div class="container mx-auto px-4 py-10">
+      <div class="max-w-3xl mx-auto">
+        {@include includes/breadcrumb.html}
+        <section class="bg-white rounded-lg shadow p-8">
+          <div class="flex items-center space-x-4 mb-6">
+            <div
+              class="flex h-12 w-12 items-center justify-center rounded-full bg-red-100"
+            >
+              <span class="text-xl font-semibold text-red-600">500</span>
+            </div>
+            <div>
+              <h1 class="text-3xl font-bold text-gray-800">
+                Ocorreu um problema inesperado
+              </h1>
+              <p class="text-gray-600 mt-1">
+                {message ?: 'Não foi possível concluir sua solicitação no momento.'}
+              </p>
+            </div>
+          </div>
+          <p class="text-gray-600 leading-relaxed mb-6">
+            Registramos automaticamente este incidente para que a equipe técnica possa investigar.
+            Caso precise entrar em contato, informe o identificador abaixo.
+          </p>
+          <div class="bg-gray-50 border border-gray-200 rounded-md px-4 py-3 mb-8">
+            <p class="text-sm text-gray-500">Identificador do incidente</p>
+            <p class="text-base font-mono text-gray-800">{incidentId}</p>
+          </div>
+          <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <a
+              href="javascript:history.back()"
+              class="inline-flex items-center justify-center rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition"
+            >
+              ← Voltar para página anterior
+            </a>
+            <a
+              href="/docs"
+              class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700 transition"
+            >
+              Abrir central de documentação
+            </a>
+          </div>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>

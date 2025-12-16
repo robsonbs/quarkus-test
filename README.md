@@ -1,204 +1,158 @@
-# Aplicação Quarkus MVC com PostgreSQL
+docker compose up -d postgres
+docker compose up --build
 
-Uma aplicação web moderna construída com o framework Quarkus, implementando os padrões MVC e DAO com banco de dados PostgreSQL e Tailwind CSS para estilização.
+# Aplicação Web com Quarkus
 
-## Stack Tecnológica
+Aplicação didática desenvolvida para a disciplina **Programação para Web III** (IFG – Campus Luziânia). O objetivo é demonstrar um backend Java com Quarkus atendendo aos requisitos comuns descritos no documento *Projeto Prático – Programação para Web – 2025* e dois casos de uso de domínio (gestão de notas pessoais e de tarefas com status e prazos).
 
-- **Framework Backend**: Quarkus 3.6.4
-- **Banco de Dados**: PostgreSQL 15
-- **ORM**: Hibernate com Panache
-- **Motor de Templates**: Qute Templates
-- **Framework CSS**: Tailwind CSS
-- **Containerização**: Docker & Docker Compose
-- **Ferramenta de Build**: Maven
+## Tecnologias e Arquitetura
 
-## Arquitetura
+* **Quarkus 3.6.4**, rodando em modo JVM com extensões JAX-RS, Qute, Elytron Security JDBC e Panache ORM.
+* **Java 17** (linguagem obrigatória do projeto).
+* **PostgreSQL 15** (Docker Compose) com schema provisionado via migrações Flyway.
+* **Tailwind CSS** servida via CDN para estilização rápida das telas.
+* **Maven Wrapper** (`./mvnw`) para builds locais e em containers.
 
-Esta aplicação segue os seguintes padrões de design:
-
-- **MVC (Model-View-Controller)**: Separa as preocupações entre dados, apresentação e lógica de negócios
-- **DAO (Data Access Object)**: Abstrai operações de banco de dados
-- **Injeção de Dependência**: Usa CDI para baixo acoplamento
-
-### Estrutura do Projeto
+### Organização em camadas (MVC + DAO + Service/BO + DTO)
 
 ```
 src/main/java/com/robsonbs/
-├── model/          # Classes de entidade (Model)
-│   └── User.java
-├── dao/            # Data Access Objects
-│   └── UserDao.java
-└── controller/     # Controladores REST (Controller)
-    └── UserController.java
+├── controller/   # Camada Controller (JAX-RS) responsável pelas rotas HTML/JSON
+├── service/      # Camada de negócio (BO) com regras e validações essenciais
+├── dao/          # Objetos de Acesso a Dados (PanacheRepository)
+├── dto/          # Objetos de transferência usados pelas telas e APIs
+└── model/        # Entidades JPA (User, UserProfile, Note, Task)
 
 src/main/resources/
-├── templates/      # Templates HTML Qute (View)
-│   ├── users.html
-│   └── userForm.html
-└── application.properties
+├── templates/    # Páginas Qute (login, lista de usuários, lista de notas, formulários)
+├── application.properties
+└── db/migration/ # Scripts versionados Flyway (`V1__Initial_schema.sql`, ...)
 ```
 
-## Funcionalidades
+## Entidades, DTOs e serviços
 
-- ✅ Operações CRUD completas para gerenciamento de Usuários
-- ✅ Endpoints de API RESTful
-- ✅ Interface responsiva com Tailwind CSS
-- ✅ Integração com banco de dados PostgreSQL
-- ✅ Orquestração com Docker Compose
-- ✅ Hibernate ORM com geração automática de schema
+* **User / UserProfile:** representam credenciais e perfis;  `UserService` aplica hash de senha com `BcryptUtil` antes da persistência.
+* **Note:** anotações vinculadas a um usuário;  `NoteService` busca notas do usuário autenticado e controla criação/edição/exclusão.
+* **Task:** tarefas com status e data limite associadas ao usuário;  `TaskService` valida prazos e status e registra auditoria completa do ciclo de vida.
+* **DTOs:** `UserRequestDTO`,      `UserResponseDTO`,      `NoteRequestDTO`,  `NoteResponseDTO` e `LoginRequestDTO` evitam expor entidades diretamente às views.
 
-## Pré-requisitos
+## Segurança
 
-- Java 17 ou superior
-- Maven 3.8+
-- Docker e Docker Compose
+* **Autenticação:** formulário em `/login` envia credenciais para `/j_security_check`; Elytron Security JDBC consulta as tabelas `users` e `user_profiles`.
+* **Autorização:** rotas protegidas com `@RolesAllowed` (`ADMIN` para administração de usuários;  `USER` ou `ADMIN` para notas).
+* **Senhas demo:** geradas com Bcrypt e registradas via migração Flyway.
+* **Sessão HTTP:** `quarkus.http.auth.session.encryption-key` definido em `application.properties` para garantir cookies consistentes entre sessões.
 
-## Começando
+### Contas de demonstração
 
-### 1. Clone o Repositório
+| Perfil | E-mail                | Senha |
+|--------|-----------------------|-------|
+| ADMIN  | admin@example.com     | 123   |
+| USER   | user@example.com      | 123   |
+
+## Conformidade com o documento “Projeto Prático – Programação para Web – 2025”
+
+| ID | Requisito | Status | Implementação / Observações |
+|----|-----------|--------|------------------------------|
+| 1  | Autenticar usuário | ✅ Concluído | Login form `/login` , Elytron JDBC, proteção a todas as rotas autenticadas. |
+| 2  | Manter usuário | ✅ Concluído | `UserController` + `users.html` permitem listar, criar e remover usuários (ADMIN). |
+| 3  | Manter perfil de usuário | ✅ Concluído | `UserProfileController` + telas `profiles.html` / `profileForm.html` entregam CRUD completo com validações de uso e mensagens de feedback. |
+| 4  | Navegação entre recursos | ✅ Concluído | Menu global reutilizável ( `templates/includes/navigation.html` ), breadcrumbs padronizados e página `/docs` consolidando os recursos. |
+| 5  | Dois casos de uso de domínio | ✅ Concluído | 
+|    | • Gestão de notas pessoais | | `NoteController` lista/cria/atualiza/exclui notas do usuário autenticado (perfil `USER` ou `ADMIN` ). |
+|    | • Gestão de tarefas com prazos | | `TaskController` controla tarefas com status ( `PENDING` , `IN_PROGRESS` , `COMPLETED` ), valida data limite e mantém histórico via auditoria. |
+| 6  | Rastreabilidade e auditoria | ⚙️ Em evolução | `AuditLogService` persiste ações com usuário, IP, método e status; tela `/audit` traz filtros por usuário, método, recurso, entidade e intervalo de datas, além de fallback 500 com incidente auditável. Pendentes: cobertura de testes automatizados. |
+
+### Requisitos não funcionais
+
+* **Java + Quarkus + JAX-RS:** atendidos em toda a stack.
+* **MVC + DAO + Service (BO):** camadas separadas conforme estrutura acima.
+* **DTO para comunicação:** rotas HTML e JSON consomem/produzem DTOs; entidades não são expostas.
+* **Banco de dados persistente:** PostgreSQL com Panache. Falta apenas o módulo de auditoria.
+
+## Execução
+
+* **Pré-requisitos:** Docker + Docker Compose, Java 17 (caso execute sem container).
+* **1. Clonar o repositório:**
+  
 
 ```bash
-git clone https://github.com/robsonbs/quarkus-test.git
-cd quarkus-test
-```
+  git clone https://github.com/robsonbs/quarkus-test.git
+  cd quarkus-test
+  ```
 
-### 2. Inicie o PostgreSQL com Docker Compose
-
-```bash
-docker compose up -d postgres
-```
-
-Isso iniciará o PostgreSQL na porta 5432 com:
-- Banco de dados: `quarkusdb`
-- Usuário: `quarkus`
-- Senha: `quarkus`
-
-### 3. Execute a Aplicação no Modo Dev
+* **2. Subir somente o banco:**
+  
 
 ```bash
-./mvnw quarkus:dev
-```
+  docker compose up -d postgres
+  ```
 
-A aplicação estará disponível em http://localhost:8080
-
-### 4. Execute com Docker Compose (Stack Completo)
-
-Para executar tanto a aplicação quanto o banco de dados juntos:
+* **3. Rodar em desenvolvimento:**
+  
 
 ```bash
-# Compile a aplicação
-./mvnw clean package
+  ./mvnw quarkus:dev
+  ```
 
-# Inicie todos os serviços
-docker compose up
-```
-
-## Endpoints
-
-### Interface Web
-
-- **Página Inicial**: http://localhost:8080/
-- **Gerenciamento de Usuários**: http://localhost:8080/users
-- **Adicionar Usuário**: http://localhost:8080/users/new
-
-### Endpoints da API
-
-- **GET /users/api** - Listar todos os usuários (JSON)
-- **POST /users** - Criar um novo usuário (dados de formulário)
-- **POST /users/{id}/delete** - Deletar um usuário
-
-## Configuração do Banco de Dados
-
-A aplicação está configurada para conectar ao PostgreSQL. A configuração pode ser encontrada em `src/main/resources/application.properties`:
-
-```properties
-quarkus.datasource.db-kind=postgresql
-quarkus.datasource.username=quarkus
-quarkus.datasource.******
-quarkus.datasource.jdbc.url=jdbc:postgresql://localhost:5432/quarkusdb
-quarkus.hibernate-orm.database.generation=update
-```
-
-## Desenvolvimento
-
-### Executando Testes
+  Acesse `http://localhost:8080` → será redirecionado para `/login` .
+* **4. Executar toda a stack com Docker Compose:**
+  
 
 ```bash
-./mvnw test
-```
+  ./mvnw clean package
+  docker compose up --build
+  ```
 
-### Compilando para Produção
-
-```bash
-./mvnw clean package
-java -jar target/quarkus-app/quarkus-run.jar
-```
-
-### Compilando Imagem Nativa
+  A aplicação fica disponível em `http://localhost:8080` e o banco em `localhost:5432` .
+* **5. Empacotar para produção (modo JVM):**
+  
 
 ```bash
-./mvnw package -Pnative
-```
+  ./mvnw clean package
+  java -jar target/quarkus-app/quarkus-run.jar
+  ```
 
-## Docker
-
-### Compilar Imagem Docker
-
-```bash
-docker build -f src/main/docker/Dockerfile.jvm -t quarkus-test .
-```
-
-### Executar com Docker
+* **6. Build nativo opcional:**
+  
 
 ```bash
-docker run -p 8080:8080 \
-  -e QUARKUS_DATASOURCE_JDBC_URL=jdbc:postgresql://host.docker.internal:5432/quarkusdb \
-  quarkus-test
-```
+  ./mvnw package -Pnative
+  ```
 
-## Detalhes do Projeto
+## Endpoints principais
 
-### Entidade User (Model)
+| Recurso | Método | Caminho | Papel |
+|---------|--------|---------|-------|
+| Login | GET | /login | Público |
+| Usuários (lista) | GET | /users | ADMIN |
+| Novo usuário (form) | GET | /users/new | ADMIN |
+| Criar usuário | POST | /users | ADMIN |
+| Carregar usuário para edição | GET | /users/{id} | ADMIN |
+| Remover usuário | POST | /users/{id}/delete | ADMIN |
+| API usuários (JSON) | GET | /users/api | ADMIN/USER |
+| Notas (lista) | GET | /notes | ADMIN/USER |
+| Nova nota (form) | GET | /notes/new | ADMIN/USER |
+| Criar/atualizar nota | POST | /notes, /notes/{id} | ADMIN/USER |
+| Excluir nota | POST | /notes/{id}/delete | ADMIN/USER |
+| Tarefas (lista) | GET | /tasks | ADMIN/USER |
+| Nova tarefa (form) | GET | /tasks/new | ADMIN/USER |
+| Criar/atualizar tarefa | POST | /tasks, /tasks/{id} | ADMIN/USER |
+| Excluir tarefa | POST | /tasks/{id}/delete | ADMIN/USER |
+| Documentação | GET | /docs | ADMIN/USER |
 
-```java
-@Entity
-@Table(name = "users")
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String name;
-    private String email;
-    private LocalDateTime createdAt;
-}
-```
+## Dados iniciais e migração
 
-### UserDao (Camada de Acesso a Dados)
+* `src/main/resources/db/migration/V1__Initial_schema.sql` cria perfis `ADMIN` e `USER`, além de usuários e tarefas demo.
+* Sequências podem ser ajustadas conforme o banco configurado (ver comentários no arquivo).
 
-Fornece métodos para operações CRUD:
-- `findAll()` - Buscar todos os usuários
-- `findById(Long id)` - Buscar usuário por ID
-- `save(User user)` - Criar ou atualizar usuário
-- `delete(Long id)` - Deletar usuário
-- `findByEmail(String email)` - Buscar usuário por email
+## Backlog imediato
 
-### UserController (Controlador MVC)
+* Disponibilizar filtros/pesquisas em notas, tarefas e usuários (melhor UX).
+* Cobrir fluxos críticos com testes de integração (ex.: criação de usuário, nota e tarefa).
+* Implementar job de retenção/backup automatizado dos registros de auditoria.
+* Automatizar exportação/relatórios das tarefas concluídas por período.
 
-Trata requisições HTTP e retorna views ou respostas JSON:
-- Views HTML para interface do usuário
-- API JSON para acesso programático
+---
 
-## Contribuindo
-
-Sinta-se livre para enviar issues e solicitações de melhorias!
-
-## Licença
-
-Este projeto está licenciado sob os termos incluídos no arquivo LICENSE.
-
-## Recursos
-
-- [Documentação Quarkus](https://quarkus.io/guides/)
-- [Hibernate ORM with Panache](https://quarkus.io/guides/hibernate-orm-panache)
-- [Motor de Templates Qute](https://quarkus.io/guides/qute)
-- [Tailwind CSS](https://tailwindcss.com/)
+Projeto distribuído sob a licença informada em `LICENSE` .

@@ -1,49 +1,14 @@
 package com.robsonbs.dao;
 
 import com.robsonbs.model.User;
+import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
-import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
-public class UserDao {
+public class UserDao implements PanacheRepository<User> {
 
-    @PersistenceContext
-    EntityManager entityManager;
-
-    public List<User> findAll() {
-        return entityManager.createQuery("SELECT u FROM User u ORDER BY u.createdAt DESC", User.class)
-                .getResultList();
-    }
-
-    public User findById(Long id) {
-        return entityManager.find(User.class, id);
-    }
-
-    @Transactional
-    public User save(User user) {
-        if (user.getId() == null) {
-            entityManager.persist(user);
-            return user;
-        } else {
-            return entityManager.merge(user);
-        }
-    }
-
-    @Transactional
-    public void delete(Long id) {
-        User user = findById(id);
-        if (user != null) {
-            entityManager.remove(user);
-        }
-    }
-
-    public User findByEmail(String email) {
-        List<User> users = entityManager.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class)
-                .setParameter("email", email)
-                .getResultList();
-        return users.isEmpty() ? null : users.get(0);
+    public Optional<User> findByEmail(String email) {
+        return find("email", email).firstResultOptional();
     }
 }
