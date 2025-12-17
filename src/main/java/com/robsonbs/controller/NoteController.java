@@ -9,6 +9,7 @@ import io.quarkus.qute.TemplateInstance;
 import io.smallrye.common.annotation.Blocking;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -85,7 +86,7 @@ public class NoteController {
 
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Response createNote(NoteRequestDTO noteRequestDTO) {
+    public Response createNote(@BeanParam NoteRequestDTO noteRequestDTO) {
         try {
             noteService.create(noteRequestDTO);
             URI location = UriBuilder.fromPath("/notes")
@@ -127,7 +128,7 @@ public class NoteController {
     @POST
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Response updateNote(@PathParam("id") Long id, NoteRequestDTO noteRequestDTO) {
+    public Response updateNote(@PathParam("id") Long id, @BeanParam NoteRequestDTO noteRequestDTO) {
         try {
             noteService.update(id, noteRequestDTO);
             URI location = UriBuilder.fromPath("/notes")

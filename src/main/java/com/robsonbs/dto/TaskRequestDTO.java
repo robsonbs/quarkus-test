@@ -1,10 +1,19 @@
 package com.robsonbs.dto;
 
+import org.jboss.resteasy.reactive.RestForm;
+
 public class TaskRequestDTO {
 
+    @RestForm
     private String title;
+    
+    @RestForm
     private String description;
+    
+    @RestForm
     private String dueDate;
+    
+    @RestForm
     private String status;
 
     public String getTitle() {

@@ -9,9 +9,7 @@
   <body class="bg-gray-100 min-h-screen">
     {#navigation /}
     <div class="container mx-auto px-4 py-8">
-      <div class="max-w-5xl mx-auto">
-        {#breadcrumb /} {#flash /}
-      </div>
+      <div class="max-w-5xl mx-auto">{#breadcrumb /} {#flash /}</div>
       <div class="max-w-5xl mx-auto">
         <div
           class="bg-white rounded-lg shadow-md p-6 mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
@@ -78,10 +76,7 @@
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                     {#if task.dueDate}
-                    {task.dueDate.format('dd/MM/yyyy')}
-                    {:else}
-                    -
-                    {/if}
+                    {task.dueDate.format('dd/MM/yyyy')}{#else}-{/if}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold">
                     {#if task.status.name == 'COMPLETED'}

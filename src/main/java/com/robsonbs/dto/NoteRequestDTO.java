@@ -1,7 +1,12 @@
 package com.robsonbs.dto;
 
+import org.jboss.resteasy.reactive.RestForm;
+
 public class NoteRequestDTO {
+    @RestForm
     private String title;
+    
+    @RestForm
     private String content;
 
     // Getters and Setters

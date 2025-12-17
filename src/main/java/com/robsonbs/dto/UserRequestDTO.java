@@ -1,9 +1,18 @@
 package com.robsonbs.dto;
 
+import org.jboss.resteasy.reactive.RestForm;
+
 public class UserRequestDTO {
+    @RestForm
     private String name;
+    
+    @RestForm
     private String email;
+    
+    @RestForm
     private String password;
+    
+    @RestForm
     private Long profileId;
 
     // Getters and Setters

@@ -10,6 +10,7 @@ import io.smallrye.common.annotation.Blocking;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -75,7 +76,7 @@ public class UserProfileController {
 
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Response createProfile(@Valid UserProfileRequestDTO requestDTO) {
+    public Response createProfile(@Valid @BeanParam UserProfileRequestDTO requestDTO) {
         try {
             userProfileService.create(requestDTO);
             URI location = UriBuilder.fromPath("/profiles")
@@ -112,7 +113,7 @@ public class UserProfileController {
     @POST
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Response updateProfile(@PathParam("id") Long id, @Valid UserProfileRequestDTO requestDTO) {
+    public Response updateProfile(@PathParam("id") Long id, @Valid @BeanParam UserProfileRequestDTO requestDTO) {
         try {
             userProfileService.update(id, requestDTO);
             URI location = UriBuilder.fromPath("/profiles")

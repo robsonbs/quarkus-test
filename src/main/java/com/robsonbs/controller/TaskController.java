@@ -9,6 +9,7 @@ import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -88,7 +89,7 @@ public class TaskController {
 
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Response createTask(TaskRequestDTO taskRequestDTO) {
+    public Response createTask(@BeanParam TaskRequestDTO taskRequestDTO) {
         try {
             taskService.create(taskRequestDTO);
             URI location = UriBuilder.fromPath("/tasks")
@@ -132,7 +133,7 @@ public class TaskController {
     @POST
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public Response updateTask(@PathParam("id") Long id, TaskRequestDTO taskRequestDTO) {
+    public Response updateTask(@PathParam("id") Long id, @BeanParam TaskRequestDTO taskRequestDTO) {
         try {
             taskService.update(id, taskRequestDTO);
             URI location = UriBuilder.fromPath("/tasks")

@@ -11,6 +11,7 @@ import io.quarkus.qute.TemplateInstance;
 import io.smallrye.common.annotation.Blocking;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -98,7 +99,7 @@ public class UserController {
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @RolesAllowed("ADMIN")
-    public Response createUser(UserRequestDTO userRequestDTO) {
+    public Response createUser(@BeanParam UserRequestDTO userRequestDTO) {
         try {
             userService.save(userRequestDTO);
             URI location = UriBuilder.fromPath("/users")
@@ -149,7 +150,7 @@ public class UserController {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @RolesAllowed("ADMIN")
-    public Response updateUser(@PathParam("id") Long id, UserRequestDTO userRequestDTO) {
+    public Response updateUser(@PathParam("id") Long id, @BeanParam UserRequestDTO userRequestDTO) {
         try {
             userService.update(id, userRequestDTO);
             URI location = UriBuilder.fromPath("/users")
