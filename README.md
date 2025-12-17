@@ -34,7 +34,7 @@ src/main/resources/
 * **User / UserProfile:** representam credenciais e perfis;  `UserService` aplica hash de senha com `BcryptUtil` antes da persistência.
 * **Note:** anotações vinculadas a um usuário;  `NoteService` busca notas do usuário autenticado e controla criação/edição/exclusão.
 * **Task:** tarefas com status e data limite associadas ao usuário;  `TaskService` valida prazos e status e registra auditoria completa do ciclo de vida.
-* **DTOs:** `UserRequestDTO`,       `UserResponseDTO`,       `NoteRequestDTO`,  `NoteResponseDTO` e `LoginRequestDTO` evitam expor entidades diretamente às views.
+* **DTOs:** `UserRequestDTO`,        `UserResponseDTO`,        `NoteRequestDTO`,  `NoteResponseDTO` e `LoginRequestDTO` evitam expor entidades diretamente às views.
 
 ## Segurança
 
@@ -61,14 +61,15 @@ src/main/resources/
 | 5  | Dois casos de uso de domínio | ✅ Concluído | 
 |    | • Gestão de notas pessoais | | `NoteController` lista/cria/atualiza/exclui notas do usuário autenticado (perfil `USER` ou `ADMIN` ). |
 |    | • Gestão de tarefas com prazos | | `TaskController` controla tarefas com status ( `PENDING` , `IN_PROGRESS` , `COMPLETED` ), valida data limite e mantém histórico via auditoria. |
-| 6  | Rastreabilidade e auditoria | ✅ Concluído | `AuditLogFilter` registra requisições autenticadas (método, caminho, IP e User-Agent) e serviços enviam eventos de domínio ao `AuditLogService` ; auditoria possui tela `/audit` com filtros completos e paginação validada em testes. |
+| 6  | Rastreabilidade e auditoria | ✅ Concluído | `AuditLogFilter` registra requisições autenticadas (método, caminho, IP e User-Agent), `LoginAuditRouteFilter` captura eventos de login (sucesso/falha), `LogoutController` registra logout, e serviços enviam eventos de domínio ao `AuditLogService` ; auditoria possui tela `/audit` com filtros completos e paginação. |
 
 ### Requisitos não funcionais
 
 * **Java + Quarkus + JAX-RS:** atendidos em toda a stack.
 * **MVC + DAO + Service (BO):** camadas separadas conforme estrutura acima.
 * **DTO para comunicação:** rotas HTML e JSON consomem/produzem DTOs; entidades não são expostas.
-* **Banco de dados persistente:** PostgreSQL com Panache. Falta apenas o módulo de auditoria.
+* **Banco de dados persistente:** PostgreSQL com Panache e migrações Flyway.
+* **Auditoria completa:** todas as ações (login, logout, CRUD) são registradas com usuário, timestamp e detalhes.
 
 ## Execução
 
@@ -156,10 +157,15 @@ Os testes com `@QuarkusTest` cobrem os pontos mais sensíveis do backend:
 
 ## Backlog imediato
 
-* Disponibilizar filtros/pesquisas em notas, tarefas e usuários (melhor UX).
-* Ampliar cobertura de testes de integração (ex.: notas, tarefas e filtros de auditoria).
+* Disponibilizar filtros/pesquisas em notas e usuários (melhor UX).
 * Implementar job de retenção/backup automatizado dos registros de auditoria.
 * Automatizar exportação/relatórios das tarefas concluídas por período.
+* Adicionar validação client-side nos formulários.
+
+## Documentação adicional
+
+* **[Arquitetura do Sistema](docs/arquitetura.md)** - Diagramas e fluxos detalhados
+* **[Plano de Adequação](docs/plano-adequacao.md)** - Checklist de conformidade com requisitos
 
 ---
 
