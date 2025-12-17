@@ -2,6 +2,7 @@ package com.robsonbs.controller;
 
 import com.robsonbs.filter.AuthenticationAuditObserver;
 import io.quarkus.security.identity.SecurityIdentity;
+import io.smallrye.common.annotation.Blocking;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -18,6 +19,7 @@ import java.net.URI;
  * Registra o evento de logout na auditoria antes de invalidar a sessão.
  */
 @Path("/logout")
+@Blocking
 public class LogoutController {
 
     @Inject
