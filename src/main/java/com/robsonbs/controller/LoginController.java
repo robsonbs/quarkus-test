@@ -8,14 +8,13 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 
-@Path("/")
+@Path("/login")
 public class LoginController {
 
     @jakarta.inject.Inject
     Template login;
 
     @GET
-    @Path("/login")
     @Produces(MediaType.TEXT_HTML)
     public TemplateInstance login(@QueryParam("error") String error,
                                   @QueryParam("success") String success) {
