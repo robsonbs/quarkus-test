@@ -77,8 +77,11 @@
                     {task.title}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                    {task.dueDate != null ? task.dueDate.format('dd/MM/yyyy') :
-                    '-'}
+                    {#if task.dueDate}
+                    {task.dueDate.format('dd/MM/yyyy')}
+                    {:else}
+                    -
+                    {/if}
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold">
                     {#if task.status.name == 'COMPLETED'}
