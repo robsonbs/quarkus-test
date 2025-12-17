@@ -23,6 +23,8 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriInfo;
 
+import io.smallrye.common.annotation.Blocking;
+
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +33,7 @@ import java.util.stream.Collectors;
 
 @Path("/tasks")
 @RolesAllowed({"USER", "ADMIN"})
+@Blocking
 public class TaskController {
 
     @Inject
