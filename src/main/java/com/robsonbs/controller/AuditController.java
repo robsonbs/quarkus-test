@@ -129,16 +129,24 @@ public class AuditController {
 
     private String buildPageUrl(UriInfo uriInfo, AuditLogFilterDTO filter, int targetPage) {
         UriBuilder builder = UriBuilder.fromUri(uriInfo.getRequestUri());
-        builder.replaceQueryParam("username", sanitize(filter.getUsername()));
-        builder.replaceQueryParam("method", sanitize(filter.getMethod()));
-        builder.replaceQueryParam("resource", sanitize(filter.getResource()));
-        builder.replaceQueryParam("entityType", sanitize(filter.getEntityType()));
-        builder.replaceQueryParam("entityId", sanitize(filter.getEntityId()));
-        builder.replaceQueryParam("from", sanitize(filter.getFrom()));
-        builder.replaceQueryParam("to", sanitize(filter.getTo()));
+        setQueryParamIfPresent(builder, "username", sanitize(filter.getUsername()));
+        setQueryParamIfPresent(builder, "method", sanitize(filter.getMethod()));
+        setQueryParamIfPresent(builder, "resource", sanitize(filter.getResource()));
+        setQueryParamIfPresent(builder, "entityType", sanitize(filter.getEntityType()));
+        setQueryParamIfPresent(builder, "entityId", sanitize(filter.getEntityId()));
+        setQueryParamIfPresent(builder, "from", sanitize(filter.getFrom()));
+        setQueryParamIfPresent(builder, "to", sanitize(filter.getTo()));
         builder.replaceQueryParam("page", targetPage);
         builder.replaceQueryParam("size", filter.getSize());
         return builder.build().toString();
+    }
+
+    private void setQueryParamIfPresent(UriBuilder builder, String name, String value) {
+        if (value != null) {
+            builder.replaceQueryParam(name, value);
+        } else {
+            builder.replaceQueryParam(name);
+        }
     }
 
     private String sanitize(String value) {
