@@ -1,0 +1,165 @@
+# ============================================
+# Twelve-Factor App: Fator V - Build, Release, Run
+# ============================================
+# Este workflow implementa a separação de estágios:
+# - Build: Compila e testa o código
+# - Release: Cria imagem Docker versionada
+# - Run: (feito pelo ambiente de deploy)
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+    tags:
+      - "v*.*.*"
+  pull_request:
+    branches: [main]
+
+env:
+  JAVA_VERSION: "17"
+  JAVA_DISTRIBUTION: "temurin"
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # ==========================================
+  # STAGE 1: BUILD & TEST
+  # ==========================================
+  build:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: quarkusdb
+          POSTGRES_USER: quarkus
+          POSTGRES_PASSWORD: quarkus
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: maven
+
+      - name: Build with Maven
+        run: ./mvnw -B package -DskipTests
+
+      - name: Run tests
+        run: ./mvnw -B test
+        env:
+          DB_URL: jdbc:postgresql://localhost:5432/quarkusdb
+          DB_USERNAME: quarkus
+          DB_PASSWORD: quarkus
+          SESSION_ENCRYPTION_KEY: test-key-for-ci-pipeline-32chars
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: quarkus-app-${{ github.sha }}
+          path: target/quarkus-app/
+          retention-days: 7
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ github.sha }}
+          path: target/surefire-reports/
+          retention-days: 7
+
+  # ==========================================
+  # STAGE 2: RELEASE (Docker Image)
+  # ==========================================
+  release:
+    name: Build & Push Docker Image
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: ${{ env.JAVA_DISTRIBUTION }}
+          cache: maven
+
+      - name: Build application
+        run: ./mvnw -B package -DskipTests
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: src/main/docker/Dockerfile.jvm
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  # ==========================================
+  # STAGE 3: SECURITY SCAN
+  # ==========================================
+  security:
+    name: Security Scan
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-results.sarif"
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: "trivy-results.sarif"
+
