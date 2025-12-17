@@ -5,6 +5,7 @@ import io.quarkus.qute.Location;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 import io.quarkus.security.identity.SecurityIdentity;
+import io.vertx.core.Vertx;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotFoundException;
@@ -40,6 +41,9 @@ public class ErrorPageMapper {
 
     @Inject
     SecurityIdentity securityIdentity;
+
+    @Inject
+    Vertx vertx;
 
     @ServerExceptionMapper(ForbiddenException.class)
     public Response forbidden(ForbiddenException exception) {
@@ -97,15 +101,26 @@ public class ErrorPageMapper {
             }
 
             String details = truncate(buildDetails(exception, incidentId), 500);
-            auditLogService.recordDomainEvent(
-                    username,
-                    "ERROR_500",
-                    resourcePath,
-                    "Exception",
-                    exception != null ? exception.getClass().getName() : "Unknown",
-                    details,
-                    Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()
-            );
+            
+            // Captura variáveis finais para uso na lambda
+            final String finalUsername = username;
+            final String finalResourcePath = resourcePath;
+            final String finalDetails = details;
+            final String exceptionClass = exception != null ? exception.getClass().getName() : "Unknown";
+            
+            // Executa em worker thread para evitar erro JTA na thread IO
+            vertx.executeBlocking(() -> {
+                auditLogService.recordDomainEvent(
+                        finalUsername,
+                        "ERROR_500",
+                        finalResourcePath,
+                        "Exception",
+                        exceptionClass,
+                        finalDetails,
+                        Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()
+                );
+                return null;
+            });
 
             if (exception != null) {
                 LOGGER.errorf(exception, "Unhandled exception captured (incidentId=%s, path=%s)", incidentId, resourcePath);
