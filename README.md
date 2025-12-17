@@ -34,7 +34,7 @@ src/main/resources/
 * **User / UserProfile:** representam credenciais e perfis;  `UserService` aplica hash de senha com `BcryptUtil` antes da persistência.
 * **Note:** anotações vinculadas a um usuário;  `NoteService` busca notas do usuário autenticado e controla criação/edição/exclusão.
 * **Task:** tarefas com status e data limite associadas ao usuário;  `TaskService` valida prazos e status e registra auditoria completa do ciclo de vida.
-* **DTOs:** `UserRequestDTO`,      `UserResponseDTO`,      `NoteRequestDTO`,  `NoteResponseDTO` e `LoginRequestDTO` evitam expor entidades diretamente às views.
+* **DTOs:** `UserRequestDTO`,       `UserResponseDTO`,       `NoteRequestDTO`,  `NoteResponseDTO` e `LoginRequestDTO` evitam expor entidades diretamente às views.
 
 ## Segurança
 
@@ -61,7 +61,7 @@ src/main/resources/
 | 5  | Dois casos de uso de domínio | ✅ Concluído | 
 |    | • Gestão de notas pessoais | | `NoteController` lista/cria/atualiza/exclui notas do usuário autenticado (perfil `USER` ou `ADMIN` ). |
 |    | • Gestão de tarefas com prazos | | `TaskController` controla tarefas com status ( `PENDING` , `IN_PROGRESS` , `COMPLETED` ), valida data limite e mantém histórico via auditoria. |
-| 6  | Rastreabilidade e auditoria | ⚙️ Em evolução | `AuditLogService` persiste ações com usuário, IP, método e status; tela `/audit` traz filtros por usuário, método, recurso, entidade e intervalo de datas, além de fallback 500 com incidente auditável. Pendentes: cobertura de testes automatizados. |
+| 6  | Rastreabilidade e auditoria | ✅ Concluído | `AuditLogFilter` registra requisições autenticadas (método, caminho, IP e User-Agent) e serviços enviam eventos de domínio ao `AuditLogService` ; auditoria possui tela `/audit` com filtros completos e paginação validada em testes. |
 
 ### Requisitos não funcionais
 
@@ -120,6 +120,14 @@ src/main/resources/
   ./mvnw package -Pnative
   ```
 
+## Testes automatizados
+
+Os testes com `@QuarkusTest` cobrem os pontos mais sensíveis do backend:
+* Garantem que rotas protegidas redirecionam anônimos para `/login` e que a página pública carrega corretamente.
+* Validam criação e validação de usuários (unicidade de e-mail) com auditoria em `AuditLog`.
+* Exercitam o fluxo de criação/exclusão de perfis, incluindo bloqueio de remoção quando houver usuários associados.
+* Verificam ciclo de vida completo das notas e tarefas (create/update/delete) com auditoria registrada.
+
 ## Endpoints principais
 
 | Recurso | Método | Caminho | Papel |
@@ -149,7 +157,7 @@ src/main/resources/
 ## Backlog imediato
 
 * Disponibilizar filtros/pesquisas em notas, tarefas e usuários (melhor UX).
-* Cobrir fluxos críticos com testes de integração (ex.: criação de usuário, nota e tarefa).
+* Ampliar cobertura de testes de integração (ex.: notas, tarefas e filtros de auditoria).
 * Implementar job de retenção/backup automatizado dos registros de auditoria.
 * Automatizar exportação/relatórios das tarefas concluídas por período.
 
