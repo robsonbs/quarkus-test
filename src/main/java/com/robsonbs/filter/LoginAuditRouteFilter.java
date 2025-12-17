@@ -11,30 +11,97 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 
 /**
- * Filtro Vert.x que intercepta requisições de autenticação (/j_security_check)
- * para registrar eventos de login na auditoria.
+ * Filtro Vert.x para captura e auditoria de eventos de autenticação.
  * 
- * Este filtro é necessário porque o JAX-RS filter não consegue interceptar
- * as requisições de autenticação que são processadas pelo Elytron antes de
- * chegarem aos endpoints REST.
+ * <p>Este filtro opera no nível do Vert.x Router para interceptar
+ * requisições de autenticação ({@code /j_security_check}) que são
+ * processadas pelo Elytron antes de chegarem aos endpoints JAX-RS.</p>
+ * 
+ * <h2>Motivação</h2>
+ * <p>O Quarkus com Form Authentication processa {@code /j_security_check}
+ * internamente no Elytron Security, tornando impossível a interceptação
+ * via filtros JAX-RS convencionais. Este filtro Vert.x executa em uma
+ * camada mais baixa da stack HTTP.</p>
+ * 
+ * <h2>Funcionamento</h2>
+ * <ol>
+ *   <li>Registra-se como filtro Vert.x com prioridade 1000 (após autenticação)</li>
+ *   <li>Intercepta apenas POST para {@code /j_security_check}</li>
+ *   <li>Adiciona handler no fim do body para análise pós-processamento</li>
+ *   <li>Analisa o Location header e status code para determinar sucesso/falha</li>
+ *   <li>Executa registro de auditoria em worker thread (para suportar JTA)</li>
+ * </ol>
+ * 
+ * <h2>Detecção de Resultado</h2>
+ * <ul>
+ *   <li><strong>Sucesso:</strong> Status 302/303 com Location que não contém "error"</li>
+ *   <li><strong>Falha:</strong> Status 302/303 com Location contendo "error"</li>
+ * </ul>
+ * 
+ * <h2>Execução Assíncrona</h2>
+ * <p>O registro de auditoria é executado em worker thread do Vert.x
+ * para permitir operações JTA/transacionais, já que o contexto
+ * Vert.x event loop não suporta transações bloqueantes.</p>
+ * 
+ * <h2>Resolução de IP</h2>
+ * <p>Similar a {@link AuditLogFilter}, considera proxies reversos:</p>
+ * <ol>
+ *   <li>{@code X-Forwarded-For}</li>
+ *   <li>{@code X-Real-IP}</li>
+ *   <li>Endereço remoto direto</li>
+ * </ol>
+ * 
+ * @author Sistema de Auditoria
+ * @version 1.0
+ * @since 1.0
+ * @see AuthenticationAuditObserver
+ * @see AuditLogService
+ * @see AuditLogFilter
  */
 @ApplicationScoped
 public class LoginAuditRouteFilter {
 
+    /**
+     * Serviço de auditoria para persistência dos eventos.
+     */
     @Inject
     AuditLogService auditLogService;
 
+    /**
+     * Instância do Vert.x para execução em worker threads.
+     */
     @Inject
     Vertx vertx;
 
     /**
-     * Registra o filtro no router do Vert.x.
-     * Prioridade alta (ordem baixa) para executar após a autenticação.
+     * Registra o filtro de auditoria no router do Vert.x.
+     * 
+     * <p>Usa CDI @Observes para capturar o evento de configuração
+     * de filtros HTTP e registrar o handler de auditoria.</p>
+     * 
+     * <p>A prioridade 1000 garante execução após a autenticação
+     * Elytron (que tem prioridade menor), permitindo acesso ao
+     * resultado da autenticação.</p>
+     * 
+     * @param filters registro de filtros HTTP do Quarkus
      */
     public void registerRoute(@Observes io.quarkus.vertx.http.runtime.filters.Filters filters) {
         filters.register(createLoginAuditHandler(), 1000);
     }
 
+    /**
+     * Cria o handler Vert.x para interceptação de login.
+     * 
+     * <p>O handler:</p>
+     * <ol>
+     *   <li>Verifica se é POST para {@code /j_security_check}</li>
+     *   <li>Adiciona body end handler para análise pós-resposta</li>
+     *   <li>Analisa resultado e registra evento apropriado</li>
+     *   <li>Chama {@code ctx.next()} para continuar o processamento</li>
+     * </ol>
+     * 
+     * @return handler configurado para auditoria de login
+     */
     private Handler<RoutingContext> createLoginAuditHandler() {
         return ctx -> {
             String path = ctx.normalizedPath();
@@ -91,6 +158,15 @@ public class LoginAuditRouteFilter {
         };
     }
 
+    /**
+     * Executa tarefa em worker thread do Vert.x.
+     * 
+     * <p>Necessário porque operações JPA/JTA não podem executar
+     * no event loop do Vert.x. O worker thread pool permite
+     * operações bloqueantes como persistência de banco de dados.</p>
+     * 
+     * @param task tarefa a executar no worker thread
+     */
     private void executeInWorkerThread(Runnable task) {
         vertx.executeBlocking(promise -> {
             try {
@@ -103,6 +179,13 @@ public class LoginAuditRouteFilter {
         }, false);
     }
 
+    /**
+     * Registra evento de login bem-sucedido.
+     * 
+     * @param username  nome do usuário autenticado
+     * @param clientIp  IP do cliente
+     * @param userAgent User-Agent do navegador
+     */
     private void recordLoginSuccess(String username, String clientIp, String userAgent) {
         auditLogService.record(
                 username,
@@ -118,6 +201,13 @@ public class LoginAuditRouteFilter {
         );
     }
 
+    /**
+     * Registra evento de falha de login.
+     * 
+     * @param username  nome de usuário tentado ou {@code null}
+     * @param clientIp  IP do cliente
+     * @param userAgent User-Agent do navegador
+     */
     private void recordLoginFailure(String username, String clientIp, String userAgent) {
         auditLogService.record(
                 username != null ? username : "anonymous",
@@ -133,6 +223,12 @@ public class LoginAuditRouteFilter {
         );
     }
 
+    /**
+     * Resolve o IP real do cliente considerando proxies reversos.
+     * 
+     * @param ctx contexto de roteamento Vert.x
+     * @return IP do cliente ou "unknown" se não disponível
+     */
     private String resolveClientIp(RoutingContext ctx) {
         String forwarded = ctx.request().getHeader("X-Forwarded-For");
         if (forwarded != null && !forwarded.isBlank()) {

@@ -27,20 +27,81 @@ import jakarta.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.util.List;
 
+/**
+ * Controller REST para gerenciamento de perfis de usuário.
+ * 
+ * <p>Este controller implementa operações CRUD para perfis de usuário,
+ * que definem roles e permissões no sistema. Perfis são usados para
+ * controle de acesso baseado em papéis (RBAC).</p>
+ * 
+ * <h2>Endpoints Disponíveis</h2>
+ * <table border="1">
+ *   <tr><th>Método</th><th>Rota</th><th>Descrição</th></tr>
+ *   <tr><td>GET</td><td>/profiles</td><td>Lista todos os perfis</td></tr>
+ *   <tr><td>GET</td><td>/profiles/new</td><td>Formulário de novo perfil</td></tr>
+ *   <tr><td>POST</td><td>/profiles</td><td>Criar novo perfil</td></tr>
+ *   <tr><td>GET</td><td>/profiles/{id}</td><td>Formulário de edição</td></tr>
+ *   <tr><td>POST</td><td>/profiles/{id}</td><td>Atualizar perfil</td></tr>
+ *   <tr><td>POST</td><td>/profiles/{id}/delete</td><td>Remover perfil</td></tr>
+ * </table>
+ * 
+ * <h2>Segurança</h2>
+ * <p>Todos os endpoints requerem role ADMIN. Apenas administradores
+ * podem gerenciar perfis do sistema.</p>
+ * 
+ * <h2>Validações</h2>
+ * <ul>
+ *   <li>Nome do perfil é obrigatório</li>
+ *   <li>Nome é normalizado para MAIÚSCULAS</li>
+ *   <li>Nomes devem ser únicos</li>
+ *   <li>Perfis com usuários associados não podem ser excluídos</li>
+ * </ul>
+ * 
+ * <h2>Padrão PRG</h2>
+ * <p>Segue o padrão Post-Redirect-Get para todas as operações de escrita,
+ * redirecionando com query params de sucesso/erro.</p>
+ * 
+ * @author Sistema de Gerenciamento
+ * @version 1.0
+ * @since 1.0
+ * @see UserProfileService
+ * @see UserProfileRequestDTO
+ * @see UserProfileResponseDTO
+ */
 @Path("/profiles")
 @RolesAllowed("ADMIN")
 @Blocking
 public class UserProfileController {
 
+    /**
+     * Serviço de negócio para operações com perfis.
+     */
     @Inject
     UserProfileService userProfileService;
 
+    /**
+     * Template para listagem de perfis.
+     * Corresponde a {@code templates/profiles.html}.
+     */
     @Inject
     Template profiles;
 
+    /**
+     * Template para formulário de criação/edição.
+     * Corresponde a {@code templates/profileForm.html}.
+     */
     @Inject
     Template profileForm;
 
+    /**
+     * Lista todos os perfis cadastrados.
+     * 
+     * <p>Exibe tabela com todos os perfis, incluindo contagem
+     * de usuários associados a cada um.</p>
+     * 
+     * @param uriInfo informações da URI com query params
+     * @return template renderizado com lista de perfis
+     */
     @GET
     @Produces(MediaType.TEXT_HTML)
         public TemplateInstance listProfiles(@Context UriInfo uriInfo) {
@@ -57,6 +118,12 @@ public class UserProfileController {
                 ));
     }
 
+    /**
+     * Exibe formulário para criação de novo perfil.
+     * 
+     * @param uriInfo informações da URI com possíveis dados preservados
+     * @return template de formulário vazio ou pré-populado
+     */
     @GET
     @Path("/new")
     @Produces(MediaType.TEXT_HTML)
@@ -74,6 +141,12 @@ public class UserProfileController {
                 ));
     }
 
+    /**
+     * Processa criação de novo perfil.
+     * 
+     * @param requestDTO dados do formulário
+     * @return resposta de redirecionamento
+     */
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response createProfile(@Valid @BeanParam UserProfileRequestDTO requestDTO) {
@@ -92,6 +165,13 @@ public class UserProfileController {
         }
     }
 
+    /**
+     * Exibe formulário de edição de perfil existente.
+     * 
+     * @param id identificador do perfil a editar
+     * @param uriInfo informações da URI
+     * @return template de formulário com dados do perfil
+     */
     @GET
     @Path("/{id}")
     @Produces(MediaType.TEXT_HTML)
@@ -110,6 +190,13 @@ public class UserProfileController {
                 ));
     }
 
+    /**
+     * Processa atualização de perfil existente.
+     * 
+     * @param id identificador do perfil a atualizar
+     * @param requestDTO novos dados do formulário
+     * @return resposta de redirecionamento
+     */
     @POST
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -130,6 +217,14 @@ public class UserProfileController {
         }
     }
 
+    /**
+     * Remove um perfil do sistema.
+     * 
+     * <p>Falha se houver usuários associados ao perfil.</p>
+     * 
+     * @param id identificador do perfil a remover
+     * @return resposta de redirecionamento para lista
+     */
     @POST
     @Path("/{id}/delete")
     public Response deleteProfile(@PathParam("id") Long id) {
@@ -147,6 +242,12 @@ public class UserProfileController {
         }
     }
 
+    /**
+     * Converte código de sucesso em mensagem amigável.
+     * 
+     * @param key código da operação
+     * @return mensagem de sucesso em português ou {@code null}
+     */
     private String resolveProfilesSuccessMessage(String key) {
         if (key == null) {
             return null;
@@ -159,10 +260,22 @@ public class UserProfileController {
         };
     }
 
+    /**
+     * Sanitiza mensagem de erro para exibição.
+     * 
+     * @param message mensagem original
+     * @return mensagem sanitizada
+     */
     private String sanitizeMessage(String message) {
         return message == null ? "Operação não pôde ser concluída." : message;
     }
 
+    /**
+     * Retorna valor seguro para query parameter.
+     * 
+     * @param value valor a processar
+     * @return string do valor ou vazio se nulo
+     */
     private String safeValue(String value) {
         return value == null ? "" : value;
     }

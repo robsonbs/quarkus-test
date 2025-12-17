@@ -32,20 +32,88 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Controller REST para gerenciamento de tarefas pessoais.
+ * 
+ * <p>Este controller implementa operações CRUD para tarefas ({@link com.robsonbs.model.Task}),
+ * permitindo que usuários gerenciem suas tarefas pessoais com workflow de status,
+ * datas de entrega e descrições. Cada usuário só tem acesso às suas próprias tarefas.</p>
+ * 
+ * <h2>Endpoints Disponíveis</h2>
+ * <table border="1">
+ *   <tr><th>Método</th><th>Rota</th><th>Descrição</th></tr>
+ *   <tr><td>GET</td><td>/tasks</td><td>Lista tarefas do usuário</td></tr>
+ *   <tr><td>GET</td><td>/tasks/new</td><td>Formulário de nova tarefa</td></tr>
+ *   <tr><td>POST</td><td>/tasks</td><td>Criar nova tarefa</td></tr>
+ *   <tr><td>GET</td><td>/tasks/{id}</td><td>Formulário de edição</td></tr>
+ *   <tr><td>POST</td><td>/tasks/{id}</td><td>Atualizar tarefa</td></tr>
+ *   <tr><td>POST</td><td>/tasks/{id}/delete</td><td>Remover tarefa</td></tr>
+ * </table>
+ * 
+ * <h2>Workflow de Status</h2>
+ * <p>As tarefas suportam os seguintes status via {@link TaskStatus}:</p>
+ * <ul>
+ *   <li>{@code PENDING} - Aguardando início (padrão)</li>
+ *   <li>{@code IN_PROGRESS} - Em execução</li>
+ *   <li>{@code COMPLETED} - Finalizada</li>
+ *   <li>{@code CANCELLED} - Cancelada</li>
+ * </ul>
+ * 
+ * <h2>Segurança</h2>
+ * <ul>
+ *   <li>Requer autenticação (roles USER ou ADMIN)</li>
+ *   <li>Usuários só acessam suas próprias tarefas</li>
+ *   <li>Tentativas de acesso a tarefas de outros resultam em 403</li>
+ * </ul>
+ * 
+ * <h2>Validações</h2>
+ * <ul>
+ *   <li>Título é obrigatório</li>
+ *   <li>Data de entrega não pode ser no passado</li>
+ *   <li>Status deve ser válido</li>
+ * </ul>
+ * 
+ * @author Sistema de Gerenciamento
+ * @version 1.0
+ * @since 1.0
+ * @see TaskService
+ * @see TaskRequestDTO
+ * @see TaskResponseDTO
+ * @see TaskStatus
+ */
 @Path("/tasks")
 @RolesAllowed({"USER", "ADMIN"})
 @Blocking
 public class TaskController {
 
+    /**
+     * Serviço de negócio para operações com tarefas.
+     */
     @Inject
     TaskService taskService;
 
+    /**
+     * Template para listagem de tarefas.
+     * Corresponde a {@code templates/tasks.html}.
+     */
     @Inject
     Template tasks;
 
+    /**
+     * Template para formulário de criação/edição.
+     * Corresponde a {@code templates/taskForm.html}.
+     */
     @Inject
     Template taskForm;
 
+    /**
+     * Lista todas as tarefas do usuário autenticado.
+     * 
+     * <p>Inclui lista de status disponíveis para filtros na interface.</p>
+     * 
+     * @param uriInfo informações da URI com query params
+     * @return template renderizado com lista de tarefas
+     */
     @GET
     @Produces(MediaType.TEXT_HTML)
     public TemplateInstance listTasks(@Context UriInfo uriInfo) {
@@ -66,6 +134,14 @@ public class TaskController {
                 ));
     }
 
+    /**
+     * Exibe formulário para criação de nova tarefa.
+     * 
+     * <p>Pré-seleciona status PENDING como padrão.</p>
+     * 
+     * @param uriInfo informações da URI com possíveis dados preservados
+     * @return template de formulário
+     */
     @GET
     @Path("/new")
     @Produces(MediaType.TEXT_HTML)
@@ -87,6 +163,12 @@ public class TaskController {
                 ));
     }
 
+    /**
+     * Processa criação de nova tarefa.
+     * 
+     * @param taskRequestDTO dados do formulário
+     * @return resposta de redirecionamento
+     */
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     public Response createTask(@BeanParam TaskRequestDTO taskRequestDTO) {
@@ -108,6 +190,13 @@ public class TaskController {
         }
     }
 
+    /**
+     * Exibe formulário de edição de tarefa existente.
+     * 
+     * @param id identificador da tarefa a editar
+     * @param uriInfo informações da URI
+     * @return template de formulário com dados da tarefa
+     */
     @GET
     @Path("/{id}")
     @Produces(MediaType.TEXT_HTML)
@@ -130,6 +219,13 @@ public class TaskController {
                 ));
     }
 
+    /**
+     * Processa atualização de tarefa existente.
+     * 
+     * @param id identificador da tarefa a atualizar
+     * @param taskRequestDTO novos dados do formulário
+     * @return resposta de redirecionamento
+     */
     @POST
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -153,6 +249,12 @@ public class TaskController {
         }
     }
 
+    /**
+     * Remove uma tarefa do sistema.
+     * 
+     * @param id identificador da tarefa a remover
+     * @return resposta de redirecionamento para lista
+     */
     @POST
     @Path("/{id}/delete")
     public Response deleteTask(@PathParam("id") Long id) {
@@ -170,6 +272,13 @@ public class TaskController {
         }
     }
 
+    /**
+     * Extrai dados de formulário dos query parameters.
+     * 
+     * @param params mapa de query parameters
+     * @param keys chaves a extrair
+     * @return mapa com valores encontrados
+     */
     private Map<String, String> extractFormData(MultivaluedMap<String, String> params, String... keys) {
         Map<String, String> data = new HashMap<>();
         for (String key : keys) {
@@ -181,6 +290,13 @@ public class TaskController {
         return data;
     }
 
+    /**
+     * Resolve valor inicial para campo de formulário.
+     * 
+     * @param primary valor primário (dos query params)
+     * @param fallback valor fallback (do objeto existente)
+     * @return valor a usar ou string vazia
+     */
     private String resolveInitialValue(String primary, String fallback) {
         if (primary != null && !primary.isBlank()) {
             return primary;
@@ -188,6 +304,12 @@ public class TaskController {
         return fallback != null ? fallback : "";
     }
 
+    /**
+     * Converte código de sucesso em mensagem amigável.
+     * 
+     * @param key código da operação
+     * @return mensagem de sucesso em português ou {@code null}
+     */
     private String resolveSuccessMessage(String key) {
         if (key == null) {
             return null;
@@ -200,6 +322,12 @@ public class TaskController {
         };
     }
 
+    /**
+     * Sanitiza mensagem de erro para exibição.
+     * 
+     * @param message mensagem original
+     * @return mensagem sanitizada
+     */
     private String sanitizeMessage(String message) {
         if (message == null || message.isBlank()) {
             return "Não foi possível concluir a operação.";
@@ -207,6 +335,12 @@ public class TaskController {
         return message;
     }
 
+    /**
+     * Retorna valor seguro para query parameter.
+     * 
+     * @param value valor a processar
+     * @return string do valor ou vazio se nulo
+     */
     private String safeValue(Object value) {
         return value == null ? "" : String.valueOf(value);
     }
