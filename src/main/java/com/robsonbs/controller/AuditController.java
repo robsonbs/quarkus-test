@@ -6,6 +6,7 @@ import com.robsonbs.service.AuditLogService;
 import com.robsonbs.view.BreadcrumbItem;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
+import io.smallrye.common.annotation.Blocking;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
@@ -24,6 +25,7 @@ import java.util.stream.Collectors;
 
 @Path("/audit")
 @RolesAllowed("ADMIN")
+@Blocking
 public class AuditController {
 
     private static final List<String> HTTP_METHODS = List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "DOMAIN");

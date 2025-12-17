@@ -6,6 +6,7 @@ import com.robsonbs.service.NoteService;
 import com.robsonbs.view.BreadcrumbItem;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
+import io.smallrye.common.annotation.Blocking;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 
 @Path("/notes")
 @RolesAllowed({"USER", "ADMIN"})
+@Blocking
 public class NoteController {
 
     @Inject

@@ -8,6 +8,7 @@ import com.robsonbs.service.UserService;
 import com.robsonbs.view.BreadcrumbItem;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
+import io.smallrye.common.annotation.Blocking;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -31,6 +32,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Path("/users")
+@Blocking
 public class UserController {
 
     @Inject

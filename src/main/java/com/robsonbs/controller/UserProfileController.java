@@ -6,6 +6,7 @@ import com.robsonbs.service.UserProfileService;
 import com.robsonbs.view.BreadcrumbItem;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
+import io.smallrye.common.annotation.Blocking;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -27,6 +28,7 @@ import java.util.List;
 
 @Path("/profiles")
 @RolesAllowed("ADMIN")
+@Blocking
 public class UserProfileController {
 
     @Inject
