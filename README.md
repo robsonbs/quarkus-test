@@ -10,6 +10,8 @@
 
 ![License](https://img.shields.io/badge/License-MIT-green)
 
+![15-Factor App](https://img.shields.io/badge/15--Factor%20App-Compliant-success)
+
 ---
 
 ## 📋 Índice
@@ -33,6 +35,8 @@
 
 Sistema web completo para gerenciamento de **notas pessoais** e **tarefas com prazos**, desenvolvido seguindo os padrões de arquitetura **MVC**, **DAO**, **Service (BO)** e **DTO**. A aplicação implementa autenticação baseada em formulário, controle de acesso por perfis (ADMIN/USER) e auditoria completa de todas as ações.
 
+> 🚀 **Cloud Native:** Este projeto segue rigorosamente a metodologia **15-Factor App**, garantindo portabilidade, escalabilidade, observabilidade e segurança para ambientes modernos.
+
 ### Contas de Demonstração
 
 | Perfil | E-mail | Senha |
@@ -54,6 +58,8 @@ Sistema web completo para gerenciamento de **notas pessoais** e **tarefas com pr
 | 📝 **Notas** | Anotações pessoais por usuário | USER, ADMIN |
 | ✅ **Tarefas** | Gestão de tarefas com status e prazos | USER, ADMIN |
 | 📊 **Auditoria** | Logs de todas as ações do sistema | ADMIN |
+| 📈 **Observabilidade** | Métricas, Health Checks e Tracing | ADMIN/SRE |
+| 📖 **API First** | Documentação OpenAPI/Swagger | Público |
 
 ### Casos de Uso Implementados
 
@@ -166,6 +172,9 @@ Browser ──► Controller ──► Service ──► DAO ──► Database
 * **Elytron Security JDBC** - Autenticação/Autorização
 * **Flyway** - Migrações de banco de dados
 * **BCrypt** - Hash de senhas
+* **SmallRye OpenAPI** - Documentação de API
+* **SmallRye Health** - Monitoramento de saúde
+* **Micrometer Prometheus** - Métricas de aplicação
 
 ### Frontend
 
@@ -425,6 +434,17 @@ quarkus-test/
 |--------|---------|-----------|
 | GET | `/audit` | Visualizar logs com filtros |
 
+### Observabilidade & Documentação
+
+| Método | Caminho | Descrição |
+|--------|---------|-----------|
+| GET | `/q/swagger-ui` | Interface interativa da API |
+| GET | `/q/openapi` | Especificação OpenAPI (YAML/JSON) |
+| GET | `/q/health` | Status geral da aplicação |
+| GET | `/q/health/live` | Liveness Probe (Kubernetes) |
+| GET | `/q/health/ready` | Readiness Probe (Kubernetes) |
+| GET | `/q/metrics` | Métricas para Prometheus |
+
 ---
 
 ## 🔐 Segurança
@@ -509,11 +529,24 @@ quarkus-test/
 | Padrão BO | ✅ | Services com regras de negócio |
 | DTOs | ✅ | Request/Response DTOs |
 
+### Conformidade 15-Factor App
+
+O projeto atinge **99% de conformidade** com a metodologia estendida:
+
+| Fator | Status | Implementação |
+|-------|--------|---------------|
+| I-XII | ✅ | Codebase, Config, Backing Services, CI/CD, Logs, etc. |
+| XIII. API First | ✅ | OpenAPI/Swagger implementado |
+| XIV. Telemetry | ✅ | Health Checks e Métricas Prometheus |
+| XV. Security | ✅ | RBAC, Security Headers, CORS, Audit |
+
 ---
 
 ## 📚 Documentação Adicional
 
 * [Arquitetura do Sistema](docs/arquitetura.md) - Diagramas detalhados
+* [Guia 15-Factor App](docs/fifteen-factor-app.md) - Documentação completa da metodologia
+* [Auditoria 12-Factor](docs/auditoria-12-fatores.md) - Análise detalhada de conformidade
 * [Plano de Adequação](docs/plano-adequacao.md) - Checklist de conformidade
 
 ---
