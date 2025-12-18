@@ -16,6 +16,10 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriInfo;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -72,6 +76,7 @@ import java.util.stream.Collectors;
 @Path("/audit")
 @RolesAllowed("ADMIN")
 @Blocking
+@Tag(name = "Auditoria", description = "Visualização de logs de auditoria do sistema")
 public class AuditController {
 
     /**

@@ -25,6 +25,10 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.ws.rs.core.MultivaluedMap;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -81,6 +85,7 @@ import java.util.stream.Collectors;
  */
 @Path("/users")
 @Blocking
+@Tag(name = "Usuários", description = "Gerenciamento de usuários do sistema (CRUD completo)")
 public class UserController {
 
     /**
@@ -122,6 +127,11 @@ public class UserController {
     @GET
     @Produces(MediaType.TEXT_HTML)
     @RolesAllowed("ADMIN")
+    @Operation(summary = "Listar usuários", description = "Retorna página HTML com lista de todos os usuários cadastrados")
+    @APIResponses({
+        @APIResponse(responseCode = "200", description = "Lista de usuários renderizada"),
+        @APIResponse(responseCode = "403", description = "Acesso negado - requer role ADMIN")
+    })
     public TemplateInstance listUsers(@Context UriInfo uriInfo) {
         List<UserResponseDTO> allUsers = userService.listAll().stream()
                 .map(UserResponseDTO::new)
@@ -152,6 +162,8 @@ public class UserController {
     @Path("/new")
     @Produces(MediaType.TEXT_HTML)
     @RolesAllowed("ADMIN")
+    @Operation(summary = "Formulário novo usuário", description = "Exibe formulário para criação de novo usuário")
+    @APIResponse(responseCode = "200", description = "Formulário renderizado")
         public TemplateInstance newUserForm(@Context UriInfo uriInfo) {
         List<UserProfileResponseDTO> profiles = userProfileService.listForSelection();
         var params = uriInfo.getQueryParameters();
@@ -189,6 +201,11 @@ public class UserController {
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @RolesAllowed("ADMIN")
+    @Operation(summary = "Criar usuário", description = "Cadastra um novo usuário no sistema")
+    @APIResponses({
+        @APIResponse(responseCode = "303", description = "Usuário criado com sucesso, redirecionando"),
+        @APIResponse(responseCode = "400", description = "Dados inválidos - email duplicado ou campos obrigatórios")
+    })
     public Response createUser(@BeanParam UserRequestDTO userRequestDTO) {
         try {
             userService.save(userRequestDTO);
