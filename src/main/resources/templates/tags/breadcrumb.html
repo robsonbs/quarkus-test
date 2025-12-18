@@ -1,0 +1,31 @@
+{#if breadcrumb??}
+<nav class="mb-6 text-sm text-gray-500" aria-label="Breadcrumb">
+  <ol class="flex items-center space-x-2">
+    {#for item in breadcrumb}
+    <li class="flex items-center space-x-2">
+      {#if item.hasHref()}
+      <a href="{item.href}" class="hover:text-gray-700 transition"
+        >{item.label}</a
+      >
+      {#else}
+      <span class="font-medium text-gray-700">{item.label}</span>
+      {/if} {#if !loop.last}
+      <svg
+        class="h-4 w-4 text-gray-400"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 5l7 7-7 7"
+        />
+      </svg>
+      {/if}
+    </li>
+    {/for}
+  </ol>
+</nav>
+{/if}

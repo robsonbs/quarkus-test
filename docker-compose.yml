@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: quarkus-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-quarkusdb}
+      POSTGRES_USER: ${POSTGRES_USER:-quarkus}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-quarkus}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - quarkus-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U quarkus"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  quarkus-app:
+    build:
+      context: .
+      dockerfile: src/main/docker/Dockerfile.jvm
+    container_name: quarkus-app
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-quarkusdb}
+      DB_USERNAME: ${POSTGRES_USER:-quarkus}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-quarkus}
+      SESSION_ENCRYPTION_KEY: ${SESSION_ENCRYPTION_KEY:-dev-key-change-in-prod-must-be-32-chars}
+      FLYWAY_MIGRATE_AT_START: ${FLYWAY_MIGRATE_AT_START:-true}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - quarkus-network
+
+volumes:
+  postgres-data:
+
+networks:
+  quarkus-network:
+    driver: bridge
+

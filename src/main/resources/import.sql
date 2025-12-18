@@ -1,0 +1,3 @@
+-- Arquivo mantido apenas para referência histórica.
+-- O esquema e os dados de demonstração agora são gerenciados via Flyway
+-- em src/main/resources/db/migration. Nenhuma instrução deve ser adicionada aqui.
