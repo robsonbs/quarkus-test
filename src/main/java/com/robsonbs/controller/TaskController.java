@@ -25,6 +25,10 @@ import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriInfo;
 
 import io.smallrye.common.annotation.Blocking;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -84,6 +88,7 @@ import java.util.stream.Collectors;
 @Path("/tasks")
 @RolesAllowed({"USER", "ADMIN"})
 @Blocking
+@Tag(name = "Tarefas", description = "Gerenciamento de tarefas pessoais com workflow de status")
 public class TaskController {
 
     /**

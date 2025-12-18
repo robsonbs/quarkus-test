@@ -23,6 +23,10 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriBuilder;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.ws.rs.core.MultivaluedMap;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -71,6 +75,7 @@ import java.util.stream.Collectors;
 @Path("/notes")
 @RolesAllowed({"USER", "ADMIN"})
 @Blocking
+@Tag(name = "Anotações", description = "Gerenciamento de anotações pessoais do usuário")
 public class NoteController {
 
     /**
